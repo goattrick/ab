@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="index,follow,noarchive" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title></title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <!-- Static shell only — body is assembled client-side every visit (anti-fingerprint). -->
+  <style>
+    html,body{margin:0;min-height:100%}
+    #boot{font:14px/1.5 system-ui,sans-serif;color:#888;padding:48px 24px;text-align:center}
+    #app{display:none}
+    #app.on{display:block}
+    noscript p{font:15px/1.5 system-ui;padding:40px;text-align:center}
+  </style>
+</head>
+<body>
+  <noscript><p>This publication requires JavaScript.</p></noscript>
+  <div id="boot">Loading desk…</div>
+  <div id="app"></div>
+  <script>
+(function () {
+  "use strict";
+
+  /* ── entropy: new fingerprint every load ───────────────── */
+  function fnv(s) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    var x = seed >>> 0;
+    return function () {
+      x ^= x << 13; x >>>= 0;
+      x ^= x >>> 17; x >>>= 0;
+      x ^= x << 5; x >>>= 0;
+      return (x >>> 0) / 4294967296;
+    };
+  }
+  function pick(r, a) { return a[(a.length * r()) | 0]; }
+  function shuffle(r, a) {
+    var b = a.slice();
+    for (var i = b.length - 1; i > 0; i--) {
+      var j = (r() * (i + 1)) | 0;
+      var t = b[i]; b[i] = b[j]; b[j] = t;
+    }
+    return b;
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  }
+
+  var seed = fnv(
+    String(location.host) + "|" +
+    String(Date.now()) + "|" +
+    String(Math.random()) + "|" +
+    String((performance && performance.now) ? performance.now() : 0) + "|" +
+    String((navigator && navigator.language) || "") + "|" +
+    String((screen && screen.width) || 0)
+  );
+  var R = rng(seed);
+  var R2 = rng(seed ^ 0xa5a5a5a5);
+
+  /* ── rotating brand / voice pools ──────────────────────── */
+  var BRANDS = [
+    ["Signal Desk", "Desk"],
+    ["Northline Journal", "Northline"],
+    ["Field Ledger", "Ledger"],
+    ["Atlas Notes", "Atlas"],
+    ["Harbor Brief", "Harbor"],
+    ["Copperline", "Copper"],
+    ["Quiet Ops", "QOps"],
+    ["Lumen Desk", "Lumen"],
+    ["Ridge Digest", "Ridge"],
+    ["Parcel Review", "Parcel"]
+  ];
+  var brand = pick(R, BRANDS);
+  var brandName = brand[0], brandShort = brand[1];
+
+  var THEMES = [
+    { bg: "#0b0d12", panel: "#12151c", ink: "#e8eaef", muted: "#9aa3b2", line: "#242a36", accent: "#7dd3fc", warm: "#fbbf24", font: "Georgia, 'Iowan Old Style', serif", sans: "Segoe UI, system-ui, sans-serif" },
+    { bg: "#111827", panel: "#1f2937", ink: "#f9fafb", muted: "#9ca3af", line: "#374151", accent: "#34d399", warm: "#fbbf24", font: "Palatino, Georgia, serif", sans: "Helvetica Neue, Helvetica, Arial, sans-serif" },
+    { bg: "#f4f1ea", panel: "#fffdf8", ink: "#1c1917", muted: "#78716c", line: "#e7e5e4", accent: "#0ea5e9", warm: "#b45309", font: "Georgia, serif", sans: "Segoe UI, system-ui, sans-serif" },
+    { bg: "#0a0f0d", panel: "#101816", ink: "#ecfdf5", muted: "#86efac", line: "#14532d", accent: "#6ee7b7", warm: "#fde68a", font: "ui-serif, Georgia, serif", sans: "ui-sans-serif, system-ui, sans-serif" },
+    { bg: "#1a1520", panel: "#241b2e", ink: "#f5f3ff", muted: "#c4b5fd", line: "#4c1d95", accent: "#a78bfa", warm: "#fb7185", font: "Georgia, serif", sans: "system-ui, sans-serif" },
+    { bg: "#f8fafc", panel: "#ffffff", ink: "#0f172a", muted: "#64748b", line: "#e2e8f0", accent: "#e11d48", warm: "#0f172a", font: "Georgia, serif", sans: "Segoe UI, system-ui, sans-serif" }
+  ];
+  var th = pick(R, THEMES);
+
+  var NAV_POOL = [
+    [["Journal", "/journal/routing-notes"], ["Guides", "/guides/session-hygiene"], ["Labs", "/labs/noise-budgets"], ["About", "/about/editorial"]],
+    [["Briefs", "/journal/routing-notes"], ["Playbooks", "/guides/session-hygiene"], ["Experiments", "/labs/noise-budgets"], ["Masthead", "/about/editorial"]],
+    [["Archive", "/archive/index"], ["Notes", "/notes/index"], ["Legal", "/legal/privacy"], ["Colophon", "/colophon.html"]],
+    [["Essays", "/journal/routing-notes"], ["Checklists", "/guides/session-hygiene"], ["Press", "/press/kit.html"], ["Feed", "/feeds/atom.xml"]]
+  ];
+  var nav = shuffle(R, pick(R, NAV_POOL).slice());
+
+  var HEADLINES = [
+    "Quiet infrastructure for noisy creator ops.",
+    "Field notes from desks that ship under pressure.",
+    "Editorial chrome for transactional mornings.",
+    "What we learned after three vendors paged at once.",
+    "A publication layer for people who hate empty tunnels.",
+    "Ops writing that ages better than status pages.",
+    "Small essays on big notification mistakes.",
+    "How we keep deep links readable on tired phones.",
+    "Process notes, not product pitches.",
+    "The boring glue between support tools and humans."
+  ];
+  var LEDES = [
+    "We publish working notes on notification design, account lifecycle messaging, and the quiet work behind support desks.",
+    "No demos. No growth hacks. Just dated notes from production mornings that went sideways and recovered.",
+    "This host is a reading surface first. Deep links from mail reuse the same chrome so pages never look like empty hoppers.",
+    "Operators keep a shared desk journal here — short, concrete, and intentionally unglamorous.",
+    "If you arrived from a bookmark, you are in the editorial layer. Product sessions live elsewhere."
+  ];
+  var CARDS = [
+    { tag: "Journal", title: "Routing notes from a Tuesday outage", body: "When three vendors page you at once, the only calm path is a boring index of what each deep link actually means.", meta: "12 min · Operations" },
+    { tag: "Guides", title: "Session hygiene for shared inboxes", body: "A checklist before rotating support aliases: naming, retention, and how to avoid zombie destinations.", meta: "9 min · Playbooks" },
+    { tag: "Labs", title: "Noise budgets for status emails", body: "We capped decorative modules after open-rate stopped correlating with task completion.", meta: "Lab note · Research" },
+    { tag: "Essay", title: "Why deep links need editorial chrome", body: "Scanners and humans both deserve a document, not an empty shell.", meta: "7 min · Design" },
+    { tag: "Notes", title: "Alias folklore and how it spreads", body: "Someone adds a temporary path. A quarter later it is load-bearing mythology.", meta: "5 min · Culture" },
+    { tag: "Brief", title: "Measuring false broken-link reports", body: "Most tickets were impatient humans, not dead hosts. Timing charts inside.", meta: "8 min · Support" },
+    { tag: "Digest", title: "Copy that survives forward-to-a-friend", body: "If the second reader cannot tell what the page is for, rewrite the lede.", meta: "6 min · Writing" },
+    { tag: "Ops", title: "Owner-dated paths beat clever hashes", body: "We stopped inventing path poetry and started stamping owners and dates.", meta: "4 min · Process" }
+  ];
+  var cards = shuffle(R, CARDS).slice(0, 3 + ((R() * 2) | 0));
+
+  var BANDS = [
+    { h: "Editorial stance", p: "Most security-looking pages fail because they look like tunnels. We write destinations as if a tired human landed from a phone mail client." },
+    { h: "How we publish", p: "Short entries. Long postmortems live elsewhere. The index exists so the apex domain reads like a publication, not a parking lot." },
+    { h: "What this is not", p: "Not a product site. Not a login desk. A journal with guides, labs, and the occasional press kit for people who still ask." }
+  ];
+  var band = pick(R, BANDS);
+
+  var FOOT_BITS = [
+    "Independent ops journal",
+    "Field notes, lightly dated",
+    "Written for tired operators",
+    "No account database on this host",
+    "Static publication layer"
+  ];
+
+  /* ── layout engines (structure differs) ─────────────────── */
+  function css() {
+    return (
+      ":root{--bg:" + th.bg + ";--panel:" + th.panel + ";--ink:" + th.ink + ";--muted:" + th.muted +
+      ";--line:" + th.line + ";--accent:" + th.accent + ";--warm:" + th.warm +
+      ";--font:" + th.font + ";--sans:" + th.sans + "}" +
+      "html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}" +
+      "a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}" +
+      ".w{width:min(1080px,calc(100% - 32px));margin:0 auto;padding-bottom:48px}" +
+      "header.s{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;" +
+      "padding:22px 0;border-bottom:1px solid var(--line)}" +
+      ".logo{font-family:var(--font);font-size:22px;letter-spacing:-.03em;color:var(--ink)}.logo em{color:var(--warm);font-style:normal}" +
+      "nav.s{display:flex;gap:14px;flex-wrap:wrap;font-size:13px}nav.s a{color:var(--muted)}" +
+      ".hero{padding:48px 0 28px;display:grid;gap:24px}" +
+      ".hero.h2{grid-template-columns:1.35fr .75fr}@media(max-width:860px){.hero.h2{grid-template-columns:1fr}}" +
+      ".hero h1{margin:0 0 12px;font-family:var(--font);font-weight:600;font-size:clamp(28px,4.6vw,46px);line-height:1.1;letter-spacing:-.03em}" +
+      ".hero p{margin:0;color:var(--muted);font-size:16px;line-height:1.65;max-width:48ch}" +
+      ".rail{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}" +
+      ".rail h2{margin:0 0 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--warm)}" +
+      ".rail ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.7}" +
+      ".grid{display:grid;gap:14px;padding:8px 0 36px}" +
+      ".grid.g3{grid-template-columns:repeat(3,1fr)}@media(max-width:860px){.grid.g3{grid-template-columns:1fr}}" +
+      ".grid.g2{grid-template-columns:1fr 1fr}@media(max-width:860px){.grid.g2{grid-template-columns:1fr}}" +
+      "article.c{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-height:160px;display:flex;flex-direction:column;gap:10px}" +
+      "article.c .tag{font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}" +
+      "article.c h3{margin:0;font-family:var(--font);font-size:19px;letter-spacing:-.02em}" +
+      "article.c p{margin:0;color:var(--muted);font-size:14px;line-height:1.55;flex:1}" +
+      "article.c .meta{font-size:12px;opacity:.75}" +
+      ".band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0;margin-bottom:26px}" +
+      ".band h2{margin:0 0 8px;font-family:var(--font);font-size:26px}" +
+      ".band p{margin:0;color:var(--muted);max-width:64ch;line-height:1.6}" +
+      "footer.s{padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}" +
+      ".stack article.c{margin-bottom:12px}" +
+      ".pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px;color:var(--muted);margin-right:6px}"
+    );
+  }
+
+  function headerHtml() {
+    var links = nav.map(function (n) {
+      return '<a href="' + esc(n[1]) + '">' + esc(n[0]) + "</a>";
+    }).join("");
+    var logoParts = brandName.split(" ");
+    var logoHtml;
+    if (logoParts.length > 1 && R() > 0.4) {
+      logoHtml = esc(logoParts.slice(0, -1).join(" ")) + " <em>" + esc(logoParts[logoParts.length - 1]) + "</em>";
+    } else {
+      logoHtml = esc(brandShort) + " <em>" + esc(pick(R, ["Desk", "Journal", "Notes", "Brief"])) + "</em>";
+    }
+    return '<header class="s"><a class="logo" href="/">' + logoHtml + '</a><nav class="s">' + links + "</nav></header>";
+  }
+
+  function cardsHtml(gridClass) {
+    return (
+      '<section class="grid ' + gridClass + '">' +
+      cards.map(function (c) {
+        var href = pick(R, ["/journal/routing-notes", "/guides/session-hygiene", "/labs/noise-budgets", "/notes/index"]);
+        return (
+          '<article class="c"><div class="tag">' + esc(c.tag) + "</div>" +
+          "<h3><a href=\"" + href + "\">" + esc(c.title) + "</a></h3>" +
+          "<p>" + esc(c.body) + "</p>" +
+          '<div class="meta">' + esc(c.meta) + "</div></article>"
+        );
+      }).join("") +
+      "</section>"
+    );
+  }
+
+  function railHtml() {
+    var items = shuffle(R, [
+      "Why deep links need editorial chrome",
+      "Session handoff copy that ages well",
+      "Measuring false broken-link reports",
+      "Owner-dated paths beat clever hashes",
+      "Noise budgets after open-rate plateau"
+    ]).slice(0, 3);
+    return (
+      '<aside class="rail"><h2>' + esc(pick(R, ["This week", "On the desk", "Reading now", "Pinned"])) + "</h2><ul>" +
+      items.map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") +
+      "</ul></aside>"
+    );
+  }
+
+  function footerHtml() {
+    return (
+      '<footer class="s"><div>© ' + new Date().getFullYear() + " " + esc(brandName) +
+      " · " + esc(pick(R, FOOT_BITS)) + " · <span class=\"pill\">" + esc((seed >>> 8).toString(16)) + "</span></div>" +
+      "<div><a href=\"/about/editorial\">Masthead</a> · <a href=\"/colophon.html\">Colophon</a> · " +
+      "<a href=\"/press/kit.html\">Press</a> · <a href=\"/feeds/atom.xml\">Atom</a> · " +
+      "<a href=\"/legal/privacy\">Privacy</a></div></footer>"
+    );
+  }
+
+  var layoutId = (R() * 4) | 0;
+  var headline = pick(R, HEADLINES);
+  var lede = pick(R, LEDES);
+  var body;
+
+  if (layoutId === 0) {
+    body =
+      '<div class="w">' + headerHtml() +
+      '<section class="hero h2"><div><h1>' + esc(headline) + "</h1><p>" + esc(lede) + "</p></div>" +
+      railHtml() + "</section>" +
+      cardsHtml("g3") +
+      '<section class="band"><h2>' + esc(band.h) + "</h2><p>" + esc(band.p) + "</p></section>" +
+      footerHtml() + "</div>";
+  } else if (layoutId === 1) {
+    body =
+      '<div class="w">' + headerHtml() +
+      '<section class="hero"><h1>' + esc(headline) + "</h1><p>" + esc(lede) + "</p>" +
+      '<div style="margin-top:14px">' +
+      shuffle(R, ["Field notes", "No pitches", "Static host", "Ops journal"]).slice(0, 3).map(function (t) {
+        return '<span class="pill">' + esc(t) + "</span>";
+      }).join("") +
+      "</div></section>" +
+      cardsHtml("g2") +
+      railHtml() +
+      '<div style="height:22px"></div>' +
+      footerHtml() + "</div>";
+  } else if (layoutId === 2) {
+    body =
+      '<div class="w">' + headerHtml() +
+      '<section class="band" style="border-top:0;margin-top:28px"><h2>' + esc(headline) + "</h2><p>" + esc(lede) + "</p></section>" +
+      '<div class="stack">' + cardsHtml("").replace('class="grid "', 'class="grid "') + "</div>" +
+      '<section class="hero h2">' + railHtml() +
+      '<div><h1 style="font-size:28px">' + esc(band.h) + "</h1><p>" + esc(band.p) + "</p></div></section>" +
+      footerHtml() + "</div>";
+  } else {
+    var first = cards[0];
+    body =
+      '<div class="w">' + headerHtml() +
+      '<section class="hero h2"><div><div class="tag" style="color:var(--accent);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">' +
+      esc(first.tag) + "</div><h1>" + esc(first.title) + "</h1><p>" + esc(first.body) + "</p>" +
+      '<p style="margin-top:14px"><a href="/journal/routing-notes">Continue reading →</a></p></div>' +
+      '<aside class="rail"><h2>' + esc(brandShort) + '</h2><p style="margin:0;color:var(--muted);font-size:13px;line-height:1.6">' +
+      esc(lede) + "</p></aside></section>" +
+      cardsHtml("g3") +
+      footerHtml() + "</div>";
+  }
+
+  /* inject style + mount */
+  var st = document.createElement("style");
+  st.textContent = css();
+  document.head.appendChild(st);
+  document.title = brandName + " — " + pick(R2, ["operations journal", "field notes", "desk brief", "ops digest"]);
+  var md = document.querySelector('meta[name="description"]');
+  if (!md) {
+    md = document.createElement("meta");
+    md.name = "description";
+    document.head.appendChild(md);
+  }
+  md.content = lede.slice(0, 155);
+  var tc = document.querySelector('meta[name="theme-color"]');
+  if (tc) tc.setAttribute("content", th.bg);
+
+  var boot = document.getElementById("boot");
+  var app = document.getElementById("app");
+  if (boot) boot.remove();
+  app.innerHTML = body;
+  app.className = "on";
+
+  /* late DOM noise: reorder invisible comment nodes / data attrs */
+  try {
+    app.setAttribute("data-rev", (seed >>> 0).toString(36));
+    app.setAttribute("data-layout", String(layoutId));
+  } catch (e) {}
+})();
+  </script>
+</body>
+</html>

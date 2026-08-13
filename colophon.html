@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="index,follow" />
+  <meta name="description" content="Colophon and production notes for Signal Desk." />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/assets/desk.css" />
+  <title>Colophon — Signal Desk</title>
+  <style>
+    body { margin: 0; background: #0b0d12; color: #e8eaef; font: 15px/1.6 system-ui, sans-serif; }
+    main { width: min(680px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0; }
+    a { color: #7dd3fc; }
+    h1 { font-family: Georgia, serif; letter-spacing: -0.03em; }
+    .muted { color: #9aa3b2; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="desk-badge">Colophon</p>
+    <h1>How this desk is made</h1>
+    <p class="muted">Static HTML, no account database on the publication host, Atom feed for readers who still like feeds.</p>
+    <hr class="desk-hr" />
+    <ul>
+      <li>Styles: <a href="/assets/desk.css">/assets/desk.css</a></li>
+      <li>Helpers: <a href="/assets/desk.js">/assets/desk.js</a></li>
+      <li>Mark: <a href="/assets/logo.svg">/assets/logo.svg</a></li>
+      <li>Feed: <a href="/feeds/atom.xml">/feeds/atom.xml</a></li>
+      <li>Humans: <a href="/humans.txt">/humans.txt</a></li>
+      <li>Security: <a href="/.well-known/security.txt">/.well-known/security.txt</a></li>
+    </ul>
+    <p class="desk-mono">build <span data-build-stamp>…</span> · <span data-year></span></p>
+    <p><a href="/">← Signal Desk</a></p>
+  </main>
+  <script src="/assets/desk.js"></script>
+</body>
+</html>

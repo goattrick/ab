@@ -1,0 +1,11 @@
+/* TEAM */
+Editor: Signal Desk Masthead
+Contact: desk@localhost
+From: Independent ops journal
+
+/* SITE */
+Standards: HTML5, CSS3
+Software: Static hosting
+Language: EN
+Doctype: HTML
+Content: Editorial / field notes

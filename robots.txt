@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /journal/
+Allow: /guides/
+Allow: /labs/
+Allow: /about/
+Allow: /legal/
+Allow: /archive/
+Allow: /notes/
+Disallow: /content/
+Disallow: /help/
+Disallow: /account/
+Disallow: /creator/
+Disallow: /verification/
+Crawl-delay: 2
+
+Sitemap: /sitemap.xml
